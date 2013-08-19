@@ -9,19 +9,34 @@
 #include <cstdlib>
 
 
-static std::vector<std::vector<int> > topic_index_Zmn;
-static std::vector<std::vector<int> > document_topic_count;
-static std::vector<int> document_topic_sum_Nm;
+static std::vector<std::vector<int> > topic_index_Zmn; //z_(m,n)
+static std::vector<std::vector<int> > document_topic_count;//n^(k)_m
+static std::vector<int> document_topic_sum_Nm;//n_m
 
 
-static void InitTopicIndex(int num_of_docs,
-                           int num_of_topics,
-                           std::vector<std::vector<std::string> >& word_matrix)
+////////////////////////////////////////////////////////////////////////////////////
+//
+//  Function:       InitTopicIndex
+//                  Sample topic index z_(m,n) = k ~ Mult(1/K)
+//  Parameters:     num_of_docs: total number of documents M
+//                  num_of_topics: total number of topics K
+//                  word_matrix: word vector reference stores the read data. {w}
+//                               It is a vector whose element is a vector of string.
+//  Return Value:   void
+//
+//  Author:         BurnedRobot
+//  Email:          robotflying777@gmail.com
+//  Created Time:   2013-08-19
+//
+///////////////////////////////////////////////////////////////////////////////////
+static void InitTopicIndex(const int num_of_docs,
+                           const int num_of_topics,
+                           const std::vector<std::vector<std::string> >& word_matrix)
 {
     topic_index_Zmn.resize(num_of_docs);
 
     std::vector<std::vector<int> >::iterator z_mn_iter = topic_index_Zmn.begin();
-    std::vector<std::vector<std::string> >::iterator word_matrix_iter = word_matrix.begin();
+    std::vector<std::vector<std::string> >::const_iterator word_matrix_iter = word_matrix.begin();
     for(; z_mn_iter != topic_index_Zmn.end(); ++z_mn_iter, ++word_matrix_iter)
         (*z_mn_iter).resize((*word_matrix_iter).size());
    
@@ -37,7 +52,25 @@ static void InitTopicIndex(int num_of_docs,
 }
 
 
-static void InitDocumentTopicCount(int num_of_docs, int num_of_topics)
+////////////////////////////////////////////////////////////////////////////////////
+//
+//  Function:       InitDocumentTopicCount
+//                  Init document-topic count: n^(k)_m
+//                  Init document-topic sum: n_m
+//                  Init topic-term count: n^(t)_k
+//                  Init topic_term sum: n_k
+//  Parameters:     num_of_docs: total number of documents M
+//                  num_of_topics: total number of topics K
+//                  word_matrix: word vector reference stores the read data. {w}
+//                               It is a vector whose element is a vector of string.
+//  Return Value:   void
+//
+//  Author:         BurnedRobot
+//  Email:          robotflying777@gmail.com
+//  Created Time:   2013-08-19
+//
+///////////////////////////////////////////////////////////////////////////////////
+static void InitDocumentTopicCount(const int num_of_docs, const int num_of_topics)
 {
     document_topic_count.resize(num_of_docs);
     document_topic_sum_Nm.resize(num_of_docs);
@@ -64,10 +97,24 @@ static void InitDocumentTopicCount(int num_of_docs, int num_of_topics)
     std::cout << std::endl;
 }
 
-
-void InitSampling(int num_of_docs,
-                  int num_of_topics,
-                  std::vector<std::vector<std::string> >& word_matrix)
+////////////////////////////////////////////////////////////////////////////////////
+//
+//  Function:       InitSampling
+//                  Do some initialization before gibbs sampling.
+//  Parameters:     num_of_docs: total number of documents M
+//                  num_of_topics: total number of topics K
+//                  word_matrix: word vector reference stores the read data. {w}
+//                               It is a vector whose element is a vector of string.
+//  Return Value:   void
+//
+//  Author:         BurnedRobot
+//  Email:          robotflying777@gmail.com
+//  Created Time:   2013-08-19
+//
+///////////////////////////////////////////////////////////////////////////////////
+void InitSampling(const int num_of_docs,
+                  const int num_of_topics,
+                  const std::vector<std::vector<std::string> >& word_matrix)
 {
     if(0 == num_of_docs && num_of_docs != word_matrix.size())
     {

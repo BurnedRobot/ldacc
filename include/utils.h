@@ -23,7 +23,21 @@ struct print_container
     }
 };
 
-
+////////////////////////////////////////////////////////////////////////////////////
+//
+//  Function:       FillWordVector
+//                  Pareser a line of words.
+//  Parameters:     line: A line of words to parser.
+//                  v_word: Word vector reference to store the parsered words. {w}
+//                  bag_of_words: A set reference to store the parsered words.
+//                                It is the implement of bag-of-words model.
+//  Return Value:   void
+//
+//  Author:         BurnedRobot
+//  Email:          robotflying777@gmail.com
+//  Created Time:   2013-08-18
+//
+///////////////////////////////////////////////////////////////////////////////////
 void FillWordVector(const std::string& line, 
                     std::vector<std::string>& v_word,
                     std::set<std::string>& bag_of_words);

@@ -12,6 +12,7 @@ int main(int argc, char* argv[])
 {
     std::vector<std::vector<std::string> >* p_word_matrix = new std::vector<std::vector<std::string> >;
     std::set<std::string>* p_bag_of_words = new std::set<std::string>;
+
     int documents_count = Init("../data/text.dat", *p_word_matrix, *p_bag_of_words);
     
     for_each(p_word_matrix->begin(), p_word_matrix->end(), 
