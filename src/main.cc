@@ -6,26 +6,28 @@
 #include <set>
 #include <algorithm>
 
-extern int g_documents;
-extern std::vector<std::vector<std::string> > g_word_matrix;
-extern std::set<std::string> g_bag_of_words;
-
+const int kTopics = 10;
 
 int main(int argc, char* argv[])
 {
-    g_documents = Init("../data/text.dat", g_word_matrix, g_bag_of_words);
+    std::vector<std::vector<std::string> >* p_word_matrix = new std::vector<std::vector<std::string> >;
+    std::set<std::string>* p_bag_of_words = new std::set<std::string>;
+    int documents_count = Init("../data/text.dat", *p_word_matrix, *p_bag_of_words);
     
-    for_each(g_word_matrix.begin(), g_word_matrix.end(), 
+    for_each(p_word_matrix->begin(), p_word_matrix->end(), 
              [](std::vector<std::string>& vt){ 
                  print_container<std::vector<std::string>, std::string>pc(std::cout);
                  pc(vt);});
     std::cout << std::endl;
 
-    copy(g_bag_of_words.begin(), g_bag_of_words.end(),
+    copy(p_bag_of_words->begin(), p_bag_of_words->end(),
          std::ostream_iterator<std::string>(std::cout, " "));
     std::cout << std::endl;
     std::cout << std::endl;
 
-    InitSampling(g_documents, kTopics, g_word_matrix);   
+    InitSampling(documents_count, kTopics, *p_word_matrix);   
+    delete p_bag_of_words;
+    delete p_word_matrix;
+
     return 0;
 }

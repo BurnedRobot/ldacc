@@ -8,30 +8,27 @@
 #include <ctime>
 #include <cstdlib>
 
-const int kTopics = 10;
-// 
-int g_documents = 0;
-std::vector<std::vector<std::string> > g_word_matrix;
-std::set<std::string> g_bag_of_words;
 
 static std::vector<std::vector<int> > topic_index_Zmn;
 static std::vector<std::vector<int> > document_topic_count;
 static std::vector<int> document_topic_sum_Nm;
 
 
-static void InitTopicIndex(int num_of_docs, int num_of_topics)
+static void InitTopicIndex(int num_of_docs,
+                           int num_of_topics,
+                           std::vector<std::vector<std::string> >& word_matrix)
 {
     topic_index_Zmn.resize(num_of_docs);
 
     std::vector<std::vector<int> >::iterator z_mn_iter = topic_index_Zmn.begin();
-    std::vector<std::vector<std::string> >::iterator word_matrix_iter = g_word_matrix.begin();
+    std::vector<std::vector<std::string> >::iterator word_matrix_iter = word_matrix.begin();
     for(; z_mn_iter != topic_index_Zmn.end(); ++z_mn_iter, ++word_matrix_iter)
         (*z_mn_iter).resize((*word_matrix_iter).size());
    
     srand((unsigned)time(0));
     for_each(topic_index_Zmn.begin(), topic_index_Zmn.end(),
-             [](std::vector<int>& vt){
-                 generate(vt.begin(), vt.end(), []{ return rand()%kTopics; });
+             [&](std::vector<int>& vt) {
+                 generate(vt.begin(), vt.end(), [&]{ return rand()%num_of_topics; });
              });
     
     for_each(topic_index_Zmn.begin(), topic_index_Zmn.end(),
@@ -72,12 +69,12 @@ void InitSampling(int num_of_docs,
                   int num_of_topics,
                   std::vector<std::vector<std::string> >& word_matrix)
 {
-    if(0 == g_documents && g_documents != word_matrix.size())
+    if(0 == num_of_docs && num_of_docs != word_matrix.size())
     {
         std::fprintf(stderr,"Numbers of Documents Error!\n");
         std::exit(0);
     }
 
-    InitTopicIndex(num_of_docs, num_of_topics);
+    InitTopicIndex(num_of_docs, num_of_topics, word_matrix);
     InitDocumentTopicCount(num_of_docs, num_of_topics);
 }
