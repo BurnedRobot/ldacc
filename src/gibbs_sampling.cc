@@ -10,8 +10,8 @@
 
 
 static std::vector<std::vector<int> > topic_index_Zmn; //z_(m,n)
-static std::vector<std::vector<int> > document_topic_count;//n^(k)_m
-static std::vector<int> document_topic_sum_Nm;//n_m
+static std::vector<std::vector<int> > doc_topic_count;//n^(k)_m
+static std::vector<int> doc_topic_sum_Nm;//n_m
 
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -54,11 +54,8 @@ static void InitTopicIndex(const int num_of_docs,
 
 ////////////////////////////////////////////////////////////////////////////////////
 //
-//  Function:       InitDocumentTopicCount
-//                  Init document-topic count: n^(k)_m
-//                  Init document-topic sum: n_m
-//                  Init topic-term count: n^(t)_k
-//                  Init topic_term sum: n_k
+//  Function:       InitCountVariables
+//                  Init all count variables
 //  Parameters:     num_of_docs: total number of documents M
 //                  num_of_topics: total number of topics K
 //                  word_matrix: word vector reference stores the read data. {w}
@@ -70,31 +67,39 @@ static void InitTopicIndex(const int num_of_docs,
 //  Created Time:   2013-08-19
 //
 ///////////////////////////////////////////////////////////////////////////////////
-static void InitDocumentTopicCount(const int num_of_docs, const int num_of_topics)
+static void InitCountVariables(const int num_of_docs,
+                               const int num_of_topics,
+                               const std::vector<std::vector<std::string> >& word_matrix)
 {
-    document_topic_count.resize(num_of_docs);
-    document_topic_sum_Nm.resize(num_of_docs);
-
-    for_each(document_topic_count.begin(), document_topic_count.end(),
+    // Init document-topic count: n^(k)_m
+    doc_topic_count.resize(num_of_docs);
+    for_each(doc_topic_count.begin(), doc_topic_count.end(),
              [&](std::vector<int>& vt){ vt.resize(num_of_topics); });
-
-    for(std::size_t index_row = 0; index_row < topic_index_Zmn.size(); ++index_row)
-    {
-        for(std::size_t index_col = 0; index_col < topic_index_Zmn[index_row].size(); ++index_col)
-        {
-            int i = topic_index_Zmn[index_row][index_col];
-            document_topic_count[index_row][i]++;
-
-            document_topic_sum_Nm[index_row]++;
-        }
-    }
-
-    for_each(document_topic_count.begin(), document_topic_count.end(),
-             print_container<std::vector<int>, int>(std::cout));
-    std::cout << std::endl;
-    copy(document_topic_sum_Nm.begin(), document_topic_sum_Nm.end(),
-         std::ostream_iterator<int>(std::cout, " "));
-    std::cout << std::endl;
+    
+    // Init document-topic sum: n_m
+    doc_topic_sum_Nm.resize(num_of_docs);
+}
+////////////////////////////////////////////////////////////////////////////////////
+//
+//  Function:       IncreDocTopicCount
+//                  Increment document-topic count: n^(k)_m += 1
+//  Parameters:     index_doc: document index of word_matrix
+//                  index_word: word index of word_matrix
+//                  word_matrix: word vector reference stores the read data. {w}
+//                               It is a vector whose element is a vector of string.
+//  Return Value:   void
+//
+//  Author:         BurnedRobot
+//  Email:          robotflying777@gmail.com
+//  Created Time:   2013-08-19
+//
+///////////////////////////////////////////////////////////////////////////////////
+inline static int IncreDocTopicCount(const std::size_t index_doc,
+                                   const std::size_t index_word,
+                                   const std::vector<std::vector<std::string> >& word_matrix)
+{
+    int i = topic_index_Zmn[index_doc][index_word];
+    doc_topic_count[index_doc][i]++;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -113,15 +118,33 @@ static void InitDocumentTopicCount(const int num_of_docs, const int num_of_topic
 //
 ///////////////////////////////////////////////////////////////////////////////////
 void InitSampling(const int num_of_docs,
-                  const int num_of_topics,
-                  const std::vector<std::vector<std::string> >& word_matrix)
+              const int num_of_topics,
+              const std::vector<std::vector<std::string> >& word_matrix)
 {
     if(0 == num_of_docs && num_of_docs != word_matrix.size())
     {
         std::fprintf(stderr,"Numbers of Documents Error!\n");
         std::exit(0);
     }
+    
+    InitCountVariables(num_of_docs, num_of_topics, word_matrix);
 
     InitTopicIndex(num_of_docs, num_of_topics, word_matrix);
-    InitDocumentTopicCount(num_of_docs, num_of_topics);
+
+    for(std::size_t index_doc = 0; index_doc < topic_index_Zmn.size(); ++index_doc)
+    {
+        for(std::size_t index_word = 0; index_word < topic_index_Zmn[index_doc].size(); ++index_word)
+        {
+            IncreDocTopicCount(index_doc, index_word, word_matrix);
+            doc_topic_sum_Nm[index_doc]++;
+        }
+    }
+
+
+    for_each(doc_topic_count.begin(), doc_topic_count.end(),
+             print_container<std::vector<int>, int>(std::cout));
+    std::cout << std::endl;
+    copy(doc_topic_sum_Nm.begin(), doc_topic_sum_Nm.end(),
+         std::ostream_iterator<int>(std::cout, " "));
+    std::cout << std::endl;
 }
