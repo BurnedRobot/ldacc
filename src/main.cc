@@ -24,6 +24,7 @@ int main(int argc, char* argv[])
     copy(g_bag_of_words.begin(), g_bag_of_words.end(),
          std::ostream_iterator<std::string>(std::cout, " "));
     std::cout << std::endl;
+    std::cout << std::endl;
 
     InitSampling(g_documents, kTopics, g_word_matrix);   
     return 0;
