@@ -7,6 +7,9 @@
 #include <algorithm>
 
 const int kTopics = 10;
+const double alpha = 0.1;
+const double beta = 0.5;
+const int kIterNum = 1000;
 
 int main(int argc, char* argv[])
 {
@@ -26,7 +29,8 @@ int main(int argc, char* argv[])
     std::cout << std::endl;
     std::cout << std::endl;
 
-    InitSampling(documents_count, kTopics, *p_word_matrix);   
+//    InitSampling(documents_count, kTopics, *p_word_matrix);   
+    GibbsSampling(documents_count, kTopics, alpha, beta, kIterNum, *p_word_matrix);
     delete p_bag_of_words;
     delete p_word_matrix;
 

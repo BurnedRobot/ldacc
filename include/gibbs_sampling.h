@@ -23,5 +23,26 @@ void InitSampling(const int num_of_docs,
                   const int num_of_topics,
                   const std::vector<std::vector<std::string> >& word_matrix);
 
-void GibbsSampling();
+////////////////////////////////////////////////////////////////////////////////////
+//
+//  Function:       GibbsSampling
+//  Parameters:     num_of_docs: total number of documents M
+//                  num_of_topics: total number of topics K
+//                  alpha: hyperparameter alpha
+//                  beta:  hyperparameter beta
+//                  word_matrix: word vector reference stores the read data. {w}
+//                               It is a vector whose element is a vector of string.
+//  Return Value:   void
+//
+//  Author:         BurnedRobot
+//  Email:          robotflying777@gmail.com
+//  Created Time:   2013-08-19
+//
+///////////////////////////////////////////////////////////////////////////////////
+void GibbsSampling(const int num_of_docs,
+                   const int num_of_topics,
+                   const double alpha,
+                   const double beta,
+                   const int iter_num,
+                   const std::vector<std::vector<std::string> >& word_matrix);
 #endif
