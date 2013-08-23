@@ -2,6 +2,7 @@
 #include "../include/utils.h"
 #include <vector>
 #include <algorithm>
+#include <numeric>
 #include <string>
 #include <set>
 #include <map>
@@ -289,8 +290,8 @@ void InitSampling(const int num_of_docs,
 //
 ///////////////////////////////////////////////////////////////////////////////////
 inline static int DecreDocTopic(const std::size_t index_doc,
-                                     const std::size_t index_word,
-                                     const std::vector<std::vector<std::string> >& word_matrix)
+                                const std::size_t index_word,
+                                const std::vector<std::vector<std::string> >& word_matrix)
 {
     int i = topic_index_Zmn[index_doc][index_word];
     //std::printf("index_doc:%d\tindex_word:%d\ti:%d\n", index_doc, index_word, i);
@@ -326,12 +327,84 @@ inline static int DecreTopicTerm(const std::size_t index_doc,
     --topic_term_sum[i];
 }
 
+////////////////////////////////////////////////////////////////////////////////////
+//
+//  Function:       CalcProba
+//                  Calculate the new probability distribution of topic
+//  Parameters:     index_doc: document index of word_matrix
+//                  index_word: word index of word_matrix
+//                  num_of_words:  total number of words: V
+//                  num_of_topics: number of topics: K
+//                  alpha: hyperparameter alpha
+//                  beta:  hyperparameter beta
+//                  word_matrix: word vector reference stores the read data. {w}
+//                               It is a vector whose element is a vector of string.
+//  Return Value:   void
+//
+//  Author:         BurnedRobot
+//  Email:          robotflying777@gmail.com
+//  Created Time:   2013-08-22
+//  Modified:       2013-08-23  add a parameter num_of_words
+//
+///////////////////////////////////////////////////////////////////////////////////
+void CalcProba(const std::size_t index_doc,
+               const std::size_t index_word,
+               const std::size_t num_of_words,
+               int num_of_topics,
+               double alpha,
+               double beta,
+               const std::vector<std::vector<std::string> >& word_matrix)
+{
+    int k = topic_index_Zmn[index_doc][index_word];
+
+    double const_denominator = 0.0;
+    const_denominator = topic_term_sum[k] + num_of_topics * alpha;
+    PrintCountVariable(3);
+
+    std::cout << "const denamoinator: " << const_denominator << std::endl;
+    
+    std::string term = word_matrix[index_doc][index_word];
+    std::cout << "Change Topic is " << k << std::endl;
+    std::vector<double> pro_vt;
+    for(k = 0; k < num_of_topics; k++) 
+    {
+        double denominator = 0.0;
+        
+        //std::cout << "beta: " << beta << std::endl;
+        //std::cout << "Topic " << k << ":" << std::endl;
+        //std::map<std::string, int>::const_iterator itmp = topic_term_count[k].begin();
+        /*for(; itmp != topic_term_count[k].end(); ++itmp)
+        {
+        //    std::cout << itmp->first << ":" << itmp->second << std::endl;
+            //denominator += itmp->second;
+            denominator += itmp->second + beta;
+        }*/
+        denominator = topic_term_sum[k] + num_of_words * beta;
+
+        //denominator *= const_denominator;
+        std::cout << "denominator: " << denominator << std::endl;
+
+        double numerator = 0.0;
+        //std::printf("topic_term_count[%d][%s]:%d\n", k, term.c_str(), topic_term_count[k][term]);
+        //std::printf("doc_topic_count[%d][%d]:%d\n", index_doc, k, doc_topic_count[index_doc][k]);
+        numerator = (topic_term_count[k][term] + beta)*(doc_topic_count[index_doc][k] + alpha);
+        //std::cout << "numerator: " << numerator << std::endl;
+
+        double probability = numerator / denominator;
+        std::cout << "Topic " << k << "\tprobability: " << probability << std::endl;
+        pro_vt.push_back(probability);
+    }
+    std::cout << "Sum: " << std::accumulate(pro_vt.begin(), pro_vt.end(), 0.0) << std::endl;
+
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////
 //
 //  Function:       UpdateTopic
 //  Parameters:     index_doc: document index of word_matrix
 //                  index_word: word index of word_matrix
+//                  num_of_topics: number of topics
 //                  alpha: hyperparameter alpha
 //                  beta:  hyperparameter beta
 //                  word_matrix: word vector reference stores the read data. {w}
@@ -345,6 +418,7 @@ inline static int DecreTopicTerm(const std::size_t index_doc,
 ///////////////////////////////////////////////////////////////////////////////////
 static void UpdateTopic(std::size_t index_doc,
                         std::size_t index_word,
+                        int num_of_topics,
                         double alpha,
                         double beta,
                         const std::vector<std::vector<std::string> >& word_matrix)
@@ -380,6 +454,7 @@ static void UpdateTopic(std::size_t index_doc,
 //  Function:       GibbsSampling
 //  Parameters:     num_of_docs: total number of documents M
 //                  num_of_topics: total number of topics K
+//                  num_of_words: total number of words V
 //                  alpha: hyperparameter alpha
 //                  beta:  hyperparameter beta
 //                  word_matrix: word vector reference stores the read data. {w}
@@ -389,10 +464,12 @@ static void UpdateTopic(std::size_t index_doc,
 //  Author:         BurnedRobot
 //  Email:          robotflying777@gmail.com
 //  Created Time:   2013-08-19
+//  Modified:       2013-08-23 add a parameter: num_of_words
 //
 ///////////////////////////////////////////////////////////////////////////////////
 void GibbsSampling(const int num_of_docs,
                    const int num_of_topics,
+                   const std::size_t num_of_words,
                    const double alpha,
                    const double beta,
                    const int iter_num,
@@ -433,10 +510,12 @@ void GibbsSampling(const int num_of_docs,
 
     //PrintCountVariable(0);
 
-    std::cout << word_matrix[1][0] << std::endl;
-    UpdateTopic(1, 0, alpha, beta, word_matrix);
+    std::cout << word_matrix[2][1] << std::endl;
+    //UpdateTopic(1, 0, alpha, beta, word_matrix);
+    CalcProba(1, 0, num_of_words, num_of_topics, alpha, beta, word_matrix);
     std::cout << std::endl;
     DecreDocTopic(1, 0, word_matrix);
     DecreTopicTerm(1, 0, word_matrix);
-    UpdateTopic(1, 0, alpha, beta, word_matrix);
+    //UpdateTopic(1, 0, alpha, beta, word_matrix);
+    CalcProba(1, 0, num_of_words, num_of_topics, alpha, beta, word_matrix);
 }
