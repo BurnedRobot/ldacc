@@ -7,8 +7,8 @@
 #include <algorithm>
 
 const int kTopics = 10;
-const double alpha = 0.01;
-const double beta = 0.5;
+const double alpha = 0.001;
+const double beta = 0.005;
 const int kIterNum = 1000;
 
 int main(int argc, char* argv[])

@@ -1,6 +1,7 @@
 #ifndef LDACC_MULTI_SAMPLER_H_
 #define LDACC_MULTI_SAMPLER_H_
 
+#include <vector>
 ////////////////////////////////////////////////////////////////////////////////////
 //
 //  Function:       GenerateMultiSample
