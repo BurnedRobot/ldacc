@@ -5,11 +5,12 @@
 #include <string>
 #include <set>
 #include <algorithm>
+#include <map>
 
 const int kTopics = 10;
-const double alpha = 0.001;
-const double beta = 0.005;
-const int kIterNum = 1000;
+const double alpha = 0.05;
+const double beta = 0.03;
+const int kIterNum = 2000;
 
 int main(int argc, char* argv[])
 {
@@ -31,8 +32,20 @@ int main(int argc, char* argv[])
 
 //    InitSampling(documents_count, kTopics, *p_word_matrix);   
     GibbsSampling(documents_count, kTopics, p_bag_of_words->size(), alpha, beta, kIterNum, *p_word_matrix);
+
+    std::vector<std::vector<double> >* p_theta = new std::vector<std::vector<double> >(documents_count);
+    std::vector<std::map<std::string, double> >* p_phi = new std::vector<std::map<std::string, double> >(kTopics);
+    EstimateTheta(documents_count, kTopics, alpha, beta, *p_theta);
+    EstimatePhi(kTopics, p_bag_of_words->size(), alpha, beta, *p_phi);
+
+    delete p_phi;
+    delete p_theta;
     delete p_bag_of_words;
     delete p_word_matrix;
 
+    p_phi = NULL;
+    p_theta = NULL;
+    p_bag_of_words = NULL;
+    p_word_matrix = NULL;
     return 0;
 }

@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <map>
 
 ////////////////////////////////////////////////////////////////////////////////////
 //
@@ -48,4 +49,42 @@ void GibbsSampling(const int num_of_docs,
                    const double beta,
                    const int iter_num,
                    const std::vector<std::vector<std::string> >& word_matrix);
+
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+//  Function:       EstimateTheta
+//  Parameters:     num_of_docs: total number of documents M
+//                  num_of_topics: total number of topics K
+//                  alpha: hyperparameter alpha
+//                  beta:  hyperparameter beta
+//                  theta: a vector to store the result of theta
+//  Return Value:   void
+//
+//  Author:         BurnedRobot
+//  Email:          robotflying777@gmail.com
+//  Created Time:   2013-08-24
+//
+///////////////////////////////////////////////////////////////////////////////////
+void EstimateTheta(int num_of_docs, int num_of_topics, double alpha, double beta,
+                    std::vector<std::vector<double> >& theta);
+
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+//  Function:       EstimatePhi
+//  Parameters:     num_of_topics: total number of topics K
+//                  num_of_words:  total number of words V
+//                  alpha: hyperparameter alpha
+//                  beta:  hyperparameter beta
+//                  phi: a vector to store the result of phi 
+//  Return Value:   void
+//
+//  Author:         BurnedRobot
+//  Email:          robotflying777@gmail.com
+//  Created Time:   2013-08-24
+//
+///////////////////////////////////////////////////////////////////////////////////
+void EstimatePhi(int num_of_topics, int num_of_words, double alpha, double beta,
+                    std::vector<std::map<std::string, double> >& phi);
 #endif

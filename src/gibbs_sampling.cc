@@ -86,7 +86,8 @@ static void PrintCountVariable(int var_no = 0, std::ostream& file = std::cout)
                 file << iter - topic_term_count.begin() << std::endl;
                 for(itmap = iter->begin(); itmap != iter->end(); ++itmap)
                 {
-                   file  << itmap->first << ":" << itmap->second << " " << std::endl;
+                    if(0 != itmap->second )
+                        file  << itmap->first << ":" << itmap->second << " " << std::endl;
                 }
                 file << std::endl;
             }
@@ -465,7 +466,84 @@ void GibbsSampling(const int num_of_docs,
     PrintCountVariable(1);
     //PrintCountVariable(2);
     //PrintCountVariable(3);
-    //PrintCountVariable(4);
+    PrintCountVariable(4);
     //PrintCountVariable(5);
+ 
 
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+//  Function:       EstimateTheta
+//  Parameters:     num_of_docs: total number of documents M
+//                  num_of_topics: total number of topics K
+//                  alpha: hyperparameter alpha
+//                  beta:  hyperparameter beta
+//                  theta: a vector to store the result of theta
+//  Return Value:   void
+//
+//  Author:         BurnedRobot
+//  Email:          robotflying777@gmail.com
+//  Created Time:   2013-08-24
+//
+///////////////////////////////////////////////////////////////////////////////////
+void EstimateTheta(int num_of_docs, int num_of_topics, double alpha, double beta,
+                    std::vector<std::vector<double> >& theta)
+{
+    for(int i = 0; i < num_of_docs; i++)
+    {
+        theta[i].resize(num_of_topics);
+        for(int j = 0; j < num_of_topics; j++)
+        {
+            theta[i][j] = (doc_topic_count[i][j] + alpha) / (doc_topic_sum[i] + alpha * num_of_topics);
+        }
+    }
+
+    for_each(theta.begin(), theta.end(), 
+             [](std::vector<double>& vt){ 
+                 print_container<std::vector<double>, double>pc(std::cout);
+                 pc(vt);});
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+//  Function:       EstimatePhi
+//  Parameters:     num_of_topics: total number of topics K
+//                  num_of_words:  total number of words V
+//                  alpha: hyperparameter alpha
+//                  beta:  hyperparameter beta
+//                  phi: a vector to store the result of phi 
+//  Return Value:   void
+//
+//  Author:         BurnedRobot
+//  Email:          robotflying777@gmail.com
+//  Created Time:   2013-08-24
+//
+///////////////////////////////////////////////////////////////////////////////////
+void EstimatePhi(int num_of_topics, int num_of_words, double alpha, double beta,
+                    std::vector<std::map<std::string, double> >& phi)
+{
+    std::map<std::string, int>::const_iterator iter;
+    for(int i = 0; i < num_of_topics; i++)
+    {
+        for(iter = topic_term_count[i].begin(); iter != topic_term_count[i].end(); ++iter)
+        {
+            phi[i][iter->first] = (static_cast<double>(iter->second) + beta) / (topic_term_sum[i] + beta * num_of_words);
+        }
+    }
+
+    /*std::vector<std::map<std::string, double> >::const_iterator phi_iter = phi.begin();
+    std::map<std::string, double>::const_iterator itmap = phi_iter->begin();
+    for(; phi_iter != phi.end(); ++phi_iter)
+    {
+        std::cout << "Topic " << phi_iter - phi.begin() << ":" << std::endl;
+        for(itmap = phi_iter->begin(); itmap != phi_iter->end(); ++itmap)
+        {
+            if(0 != itmap->second )
+                std::cout  << itmap->first << ":" << itmap->second << " " << std::endl;
+        }
+        std::cout << std::endl;
+    }*/
 }
