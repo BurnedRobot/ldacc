@@ -30,6 +30,8 @@ int ReadData(const char* filename,
     
     while(std::getline(ifile, line))
     {
+        if(line.empty())
+            continue;
         count++ ;
         std::vector<std::string> temp_vector;
         FillWordVector(line, temp_vector, bag_of_words);

@@ -8,18 +8,18 @@
 #include <map>
 
 const int kTopics = 10;
-const double alpha = 0.05;
-const double beta = 0.03;
-const int kIterNum = 2000;
+const double alpha = 0.001;
+const double beta = 0.003;
+const int kIterNum = 100;
 
 int main(int argc, char* argv[])
 {
     std::vector<std::vector<std::string> >* p_word_matrix = new std::vector<std::vector<std::string> >;
     std::set<std::string>* p_bag_of_words = new std::set<std::string>;
 
-    int documents_count = Init("../data/text.dat", *p_word_matrix, *p_bag_of_words);
+    int documents_count = Init("../data/document.dat", *p_word_matrix, *p_bag_of_words);
     
-    for_each(p_word_matrix->begin(), p_word_matrix->end(), 
+    /*for_each(p_word_matrix->begin(), p_word_matrix->end(), 
              [](std::vector<std::string>& vt){ 
                  print_container<std::vector<std::string>, std::string>pc(std::cout);
                  pc(vt);});
@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
     copy(p_bag_of_words->begin(), p_bag_of_words->end(),
          std::ostream_iterator<std::string>(std::cout, " "));
     std::cout << std::endl;
-    std::cout << std::endl;
+    std::cout << std::endl;*/
 
 //    InitSampling(documents_count, kTopics, *p_word_matrix);   
     GibbsSampling(documents_count, kTopics, p_bag_of_words->size(), alpha, beta, kIterNum, *p_word_matrix);

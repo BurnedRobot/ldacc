@@ -83,7 +83,8 @@ static void PrintCountVariable(int var_no = 0, std::ostream& file = std::cout)
             std::map<std::string, int>::const_iterator itmap = iter->begin();
             for(; iter != topic_term_count.end(); ++iter)
             {
-                file << iter - topic_term_count.begin() << std::endl;
+                file << "****************************************************************************\nTopic " 
+                     << iter - topic_term_count.begin() << std::endl;
                 for(itmap = iter->begin(); itmap != iter->end(); ++itmap)
                 {
                     if(0 != itmap->second )
@@ -433,7 +434,7 @@ void GibbsSampling(const int num_of_docs,
 {
     InitSampling(num_of_docs, num_of_topics, word_matrix);
 
-    PrintCountVariable(1);
+    //PrintCountVariable(1);
     //PrintCountVariable(2);
     //PrintCountVariable(3);
     //PrintCountVariable(4);
