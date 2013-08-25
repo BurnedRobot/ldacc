@@ -6,11 +6,11 @@ STOPWORDS_PATH = "../data/stopwords.txt"
 
 def read_stopwords(inputfile):
     stopwords_set = set()
-    stopwords_set.add(b'\xff\xfe \x00')
     stopwords_set.add('\t')
     stopwords_set.add('\n')
     stopwords_set.add(" ")
-    
+    stopwords_set.add("　")
+
     ifile = open(inputfile, "r", encoding = "utf-8")
     for line in ifile:
         word = line.split()
@@ -38,5 +38,3 @@ if "__main__" == __name__:
     result = read_stopwords(STOPWORDS_PATH)
     print(result)
     print(len(result))
-    if "并" in result:
-        print("并")

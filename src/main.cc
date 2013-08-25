@@ -9,8 +9,8 @@
 
 const int kTopics = 10;
 const double alpha = 0.001;
-const double beta = 0.003;
-const int kIterNum = 100;
+const double beta = 0.001;
+const int kIterNum = 200;
 
 int main(int argc, char* argv[])
 {
