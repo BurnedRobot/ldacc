@@ -135,7 +135,7 @@ static void InitTopicIndex(const int num_of_docs,
 
     for_each(topic_index_Zmn.begin(), topic_index_Zmn.end(),
              [&](std::vector<int>& vt) {
-                 generate(vt.begin(), vt.end(), [&]{ return rand()%num_of_topics; });
+                 generate(vt.begin(), vt.end(), [&]{ return (int)((double)rand() / RAND_MAX * num_of_topics); });
              });
     
     //PrintCountVariable(1);
@@ -358,7 +358,7 @@ int UpdateTopic(const std::size_t index_doc,
     for(k = 0; k < num_of_topics; k++) 
     {
         double denominator = 0.0;
-        denominator = topic_term_sum[k] + num_of_words * beta;
+        denominator = (topic_term_sum[k] + num_of_words * beta) * (doc_topic_sum[index_doc] + num_of_topics * alpha);
 
         double numerator = 0.0;
         numerator = (topic_term_count[k][term] + beta)*(doc_topic_count[index_doc][k] + alpha);
@@ -367,6 +367,7 @@ int UpdateTopic(const std::size_t index_doc,
         temp_vt.push_back(probability);
     }
     double sum = std::accumulate(temp_vt.begin(), temp_vt.end(), 0.0);
+    //std::cout << sum << std::endl;
     std::vector<double> pro_vt;
     for_each(temp_vt.begin(), temp_vt.end(), [&](double temp){pro_vt.push_back(temp/sum);});
     //copy(pro_vt.begin(), pro_vt.end(), std::ostream_iterator<double>(std::cout, " "));
@@ -464,7 +465,7 @@ void GibbsSampling(const int num_of_docs,
 
     }
 
-    PrintCountVariable(1);
+    //PrintCountVariable(1);
     //PrintCountVariable(2);
     //PrintCountVariable(3);
     //PrintCountVariable(4);

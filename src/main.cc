@@ -8,9 +8,9 @@
 #include <map>
 
 const int kTopics = 10;
-const double alpha = 0.001;
-const double beta = 0.001;
-const int kIterNum = 200;
+const double alpha = 50/kTopics;
+const double beta = 0.1;
+const int kIterNum = 1000;
 
 int main(int argc, char* argv[])
 {

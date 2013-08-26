@@ -40,7 +40,7 @@ int GenerateMultiSample(int num_of_topics, std::vector<double>& pro_vt)
     int random = rand();
 
     //std::cout << "random: " << random % num_of_topics << std::endl;
-    double temp = static_cast<double>(random % num_of_topics) / num_of_topics;
+    double temp = ((double)random / RAND_MAX);
 
     //std::cout << temp << std::endl;
 
