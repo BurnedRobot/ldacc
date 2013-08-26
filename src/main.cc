@@ -35,8 +35,9 @@ int main(int argc, char* argv[])
 
     std::vector<std::vector<double> >* p_theta = new std::vector<std::vector<double> >(documents_count);
     std::vector<std::map<std::string, double> >* p_phi = new std::vector<std::map<std::string, double> >(kTopics);
+    std::vector<std::vector<std::pair<std::string, double> > >* p_phi_sorted = new std::vector<std::vector<std::pair<std::string, double> > >(kTopics);
     EstimateTheta(documents_count, kTopics, alpha, beta, *p_theta);
-    EstimatePhi(kTopics, p_bag_of_words->size(), alpha, beta, *p_phi);
+    EstimatePhi(kTopics, p_bag_of_words->size(), alpha, beta, *p_phi, *p_phi_sorted);
 
     delete p_phi;
     delete p_theta;

@@ -467,7 +467,7 @@ void GibbsSampling(const int num_of_docs,
     PrintCountVariable(1);
     //PrintCountVariable(2);
     //PrintCountVariable(3);
-    PrintCountVariable(4);
+    //PrintCountVariable(4);
     //PrintCountVariable(5);
  
 
@@ -524,7 +524,8 @@ void EstimateTheta(int num_of_docs, int num_of_topics, double alpha, double beta
 //
 ///////////////////////////////////////////////////////////////////////////////////
 void EstimatePhi(int num_of_topics, int num_of_words, double alpha, double beta,
-                    std::vector<std::map<std::string, double> >& phi)
+                    std::vector<std::map<std::string, double> >& phi,
+                    std::vector<std::vector<std::pair<std::string, double> > >& phi_sorted)
 {
     std::map<std::string, int>::const_iterator iter;
     for(int i = 0; i < num_of_topics; i++)
@@ -532,7 +533,14 @@ void EstimatePhi(int num_of_topics, int num_of_words, double alpha, double beta,
         for(iter = topic_term_count[i].begin(); iter != topic_term_count[i].end(); ++iter)
         {
             phi[i][iter->first] = (static_cast<double>(iter->second) + beta) / (topic_term_sum[i] + beta * num_of_words);
+            phi_sorted[i].push_back(make_pair(iter->first, phi[i][iter->first]));
         }
+        std::sort(phi_sorted[i].begin(), phi_sorted[i].end(), 
+                  [&](const std::pair<std::string, double>& x, const std::pair<std::string, double>& y) -> bool
+                  {
+                      return !(x.second <= y.second);
+                  });
+            
     }
 
     /*std::vector<std::map<std::string, double> >::const_iterator phi_iter = phi.begin();
@@ -547,4 +555,10 @@ void EstimatePhi(int num_of_topics, int num_of_words, double alpha, double beta,
         }
         std::cout << std::endl;
     }*/
+    for(int i = 0; i < num_of_topics; i++)
+    {
+        std::cout << "#####################################################################\nTopic " << i << std::endl;
+        for(int j = 0; j < 50; j++)
+            std::cout << phi_sorted[i][j].first << ":" << phi_sorted[i][j].second << std::endl;
+    }
 }
