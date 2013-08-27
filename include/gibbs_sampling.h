@@ -86,6 +86,6 @@ void EstimateTheta(int num_of_docs, int num_of_topics, double alpha, double beta
 //
 ///////////////////////////////////////////////////////////////////////////////////
 void EstimatePhi(int num_of_topics, int num_of_words, double alpha, double beta,
-                    std::vector<std::map<std::string, double> >& phi,
+//                    std::vector<std::map<std::string, double> >& phi,
                     std::vector<std::vector<std::pair<std::string, double> > >& phi_sorted);
 #endif

@@ -1,6 +1,8 @@
+#include "../include/stdafx.h"
 #include "../include/utils.h"
 #include "../include/init_model.h"
 #include "../include/gibbs_sampling.h"
+#include "../include/lda.h"
 #include <vector>
 #include <string>
 #include <set>
@@ -14,8 +16,10 @@ const int kIterNum = 1000;
 
 int main(int argc, char* argv[])
 {
-    std::vector<std::vector<std::string> >* p_word_matrix = new std::vector<std::vector<std::string> >;
-    std::set<std::string>* p_bag_of_words = new std::set<std::string>;
+    LDA lda(kTopics, alpha, beta, kIterNum);
+    lda.InitModel("../data/document.dat");
+    WORDS_MATRIX* p_word_matrix = new WORDS_MATRIX;
+    WORDS_BAG* p_bag_of_words = new WORDS_BAG;
 
     int documents_count = Init("../data/document.dat", *p_word_matrix, *p_bag_of_words);
     
@@ -33,18 +37,19 @@ int main(int argc, char* argv[])
 //    InitSampling(documents_count, kTopics, *p_word_matrix);   
     GibbsSampling(documents_count, kTopics, p_bag_of_words->size(), alpha, beta, kIterNum, *p_word_matrix);
 
-    std::vector<std::vector<double> >* p_theta = new std::vector<std::vector<double> >(documents_count);
-    std::vector<std::map<std::string, double> >* p_phi = new std::vector<std::map<std::string, double> >(kTopics);
-    std::vector<std::vector<std::pair<std::string, double> > >* p_phi_sorted = new std::vector<std::vector<std::pair<std::string, double> > >(kTopics);
+    THETA_MATRIX* p_theta = new THETA_MATRIX(documents_count);
+    PHI_MATRIX* p_phi_sorted = new PHI_MATRIX(kTopics);
     EstimateTheta(documents_count, kTopics, alpha, beta, *p_theta);
-    EstimatePhi(kTopics, p_bag_of_words->size(), alpha, beta, *p_phi, *p_phi_sorted);
+    EstimatePhi(kTopics, p_bag_of_words->size(), alpha, beta, *p_phi_sorted);
 
-    delete p_phi;
+    delete p_phi_sorted;
+    //delete p_phi;
     delete p_theta;
     delete p_bag_of_words;
     delete p_word_matrix;
 
-    p_phi = NULL;
+    p_phi_sorted = NULL;
+    //p_phi = NULL;
     p_theta = NULL;
     p_bag_of_words = NULL;
     p_word_matrix = NULL;

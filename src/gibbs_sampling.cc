@@ -133,9 +133,13 @@ static void InitTopicIndex(const int num_of_docs,
    
     srand((unsigned)time(0));
 
+    std::vector<double> pro_vt(num_of_topics);
+    std::fill(pro_vt.begin(), pro_vt.end(), (double)(1.0)/num_of_topics);
+
     for_each(topic_index_Zmn.begin(), topic_index_Zmn.end(),
              [&](std::vector<int>& vt) {
-                 generate(vt.begin(), vt.end(), [&]{ return (int)((double)rand() / RAND_MAX * num_of_topics); });
+                 //generate(vt.begin(), vt.end(), [&]{ return (int)((double)rand() / RAND_MAX * num_of_topics); });
+                 generate(vt.begin(), vt.end(), [&]{ return GenerateMultiSample(num_of_topics, pro_vt); });
              });
     
     //PrintCountVariable(1);
@@ -525,7 +529,7 @@ void EstimateTheta(int num_of_docs, int num_of_topics, double alpha, double beta
 //
 ///////////////////////////////////////////////////////////////////////////////////
 void EstimatePhi(int num_of_topics, int num_of_words, double alpha, double beta,
-                    std::vector<std::map<std::string, double> >& phi,
+//                    std::vector<std::map<std::string, double> >& phi,
                     std::vector<std::vector<std::pair<std::string, double> > >& phi_sorted)
 {
     std::map<std::string, int>::const_iterator iter;
@@ -533,8 +537,10 @@ void EstimatePhi(int num_of_topics, int num_of_words, double alpha, double beta,
     {
         for(iter = topic_term_count[i].begin(); iter != topic_term_count[i].end(); ++iter)
         {
-            phi[i][iter->first] = (static_cast<double>(iter->second) + beta) / (topic_term_sum[i] + beta * num_of_words);
-            phi_sorted[i].push_back(make_pair(iter->first, phi[i][iter->first]));
+            //phi[i][iter->first] = (static_cast<double>(iter->second) + beta) / (topic_term_sum[i] + beta * num_of_words);
+            double phi_value = (static_cast<double>(iter->second) + beta) / (topic_term_sum[i] + beta * num_of_words);
+            
+            phi_sorted[i].push_back(make_pair(iter->first, phi_value));
         }
         std::sort(phi_sorted[i].begin(), phi_sorted[i].end(), 
                   [&](const std::pair<std::string, double>& x, const std::pair<std::string, double>& y) -> bool
