@@ -1,7 +1,6 @@
 #include "../include/stdafx.h"
 #include "../include/utils.h"
-#include "../include/init_model.h"
-#include "../include/gibbs_sampling.h"
+#include "../include/preprocess.h"
 #include "../include/lda.h"
 #include <vector>
 #include <string>
@@ -17,41 +16,29 @@ const int kIterNum = 1000;
 int main(int argc, char* argv[])
 {
     LDA lda(kTopics, alpha, beta, kIterNum);
-    lda.InitModel("../data/document.dat");
-    WORDS_MATRIX* p_word_matrix = new WORDS_MATRIX;
-    WORDS_BAG* p_bag_of_words = new WORDS_BAG;
+    lda.Init("../data/document.dat");
+    lda.Training();
 
-    int documents_count = Init("../data/document.dat", *p_word_matrix, *p_bag_of_words);
-    
-    /*for_each(p_word_matrix->begin(), p_word_matrix->end(), 
-             [](std::vector<std::string>& vt){ 
-                 print_container<std::vector<std::string>, std::string>pc(std::cout);
-                 pc(vt);});
-    std::cout << std::endl;
+    const THETA_MATRIX& theta = lda.GetTheta();
+    const PHI_MATRIX& phi = lda.GetPhi();
 
-    copy(p_bag_of_words->begin(), p_bag_of_words->end(),
-         std::ostream_iterator<std::string>(std::cout, " "));
-    std::cout << std::endl;
-    std::cout << std::endl;*/
+    std::fprintf(stdout, "Here is theta:\n");
+    for(int i = 0; i < theta.size(); i++)
+    {
+        for(int j = 0; j < theta[i].size(); j++)
+            std::fprintf(stdout, "%lf ", theta[i][j]);
+        std::fprintf(stdout, "\n");
+    }
+    std::fprintf(stdout, "\n");
 
-//    InitSampling(documents_count, kTopics, *p_word_matrix);   
-    GibbsSampling(documents_count, kTopics, p_bag_of_words->size(), alpha, beta, kIterNum, *p_word_matrix);
+    std::fprintf(stdout, "Here is phi:\n");
+    for(int i = 0; i < phi.size(); i++)
+    {
+        std::fprintf(stdout,"#####################################################################\nTopic %d\n",i);
+        for(int j = 0; j < 50; j++)
+            std::fprintf(stdout, "%s:%lf\n", phi[i][j].first.c_str() ,phi[i][j].second);
+    }
 
-    THETA_MATRIX* p_theta = new THETA_MATRIX(documents_count);
-    PHI_MATRIX* p_phi_sorted = new PHI_MATRIX(kTopics);
-    EstimateTheta(documents_count, kTopics, alpha, beta, *p_theta);
-    EstimatePhi(kTopics, p_bag_of_words->size(), alpha, beta, *p_phi_sorted);
-
-    delete p_phi_sorted;
-    //delete p_phi;
-    delete p_theta;
-    delete p_bag_of_words;
-    delete p_word_matrix;
-
-    p_phi_sorted = NULL;
-    //p_phi = NULL;
-    p_theta = NULL;
-    p_bag_of_words = NULL;
-    p_word_matrix = NULL;
+    lda.Exit();
     return 0;
 }
