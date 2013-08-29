@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <set>
+#include <map>
 
 ////////////////////////////////////////////////////////////////////
 //
@@ -29,4 +30,13 @@ typedef std::vector<std::vector<double> > THETA_MATRIX;
 // matrix of phi
 typedef std::vector<std::vector<std::pair<std::string, double> > > PHI_MATRIX;
 
+typedef std::vector<std::vector<int> > Zmn_MATRIX; //topic index matrix Z_(m,n)
+
+typedef std::vector<std::vector<int> > NKm_COUNT; //n^(k)_m
+
+typedef std::vector<int> NKm_SUM; //n_m
+
+typedef std::vector<std::map<std::string, int> >  NTk_COUNT; // n^(t)_k
+
+typedef std::vector<int> NTk_SUM; //n_k
 #endif
