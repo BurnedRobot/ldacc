@@ -158,7 +158,7 @@ void LDA::Training()
 
 void LDA::GibbsSampling()
 {
-    int count = 999;
+    int count = 0;
     while(count < iter_num)
     {
         count++;
