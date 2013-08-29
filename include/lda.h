@@ -49,10 +49,6 @@ private:
     void EstimateTheta();
     void EstimatePhi();
 
-<<<<<<< HEAD
-=======
-    void PrintZmn();
->>>>>>> 86e911966133be49a4f724483ccdbe80d7b10ab5
 public:
     
     LDA(int topic, double alpha, double beta, int iter):
