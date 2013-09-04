@@ -12,31 +12,29 @@ private:
     int     iter_num;           // total number of iteration
 
     // this parameters will not be initialized until call Init method.
-    int     docs_num = 0;           // total number of docs
-    int     words_num = 0;          // total number of words
+    int     docs_num;           // total number of docs
+    int     words_num;          // total number of words
 
 
     //
-    Zmn_MATRIX* pZmn = NULL; 
-    NKm_COUNT*  p_NKm_count = NULL; 
-    NKm_SUM*    p_NKm_sum = NULL;
-    NTk_COUNT*  p_NTk_count = NULL;
-    NTk_SUM*    p_NTk_sum = NULL;
+    Zmn_MATRIX  Zmn; 
+    NKm_COUNT   NKm_count; 
+    NKm_SUM     NKm_sum;
+    NTk_COUNT   NTk_count;
+    NTk_SUM     NTk_sum;
 
     // 
-    WORDS_MATRIX*   p_words_matrix = NULL; 
-    WORDS_BAG*      p_words_bag = NULL;
-    THETA_MATRIX*   p_theta_matrix = NULL;
-    PHI_MATRIX*     p_phi_matrix = NULL;
+    WORDS_MATRIX    words_matrix; 
+    WORDS_BAG       words_bag;
+    THETA_MATRIX    theta_matrix;
+    PHI_MATRIX      phi_matrix;
 
 
-    bool b_ready = false;     // ready to training ?
-    bool b_exit = false;     // resources have already exited ?
-
+    bool b_ready;     // ready to training ?
 
     // uncopiale
-    LDA(const LDA&) = delete ;
-    LDA& operator = (const LDA& ) = delete;
+    LDA(const LDA&);
+    LDA& operator = (const LDA& );
 
     void InitCountVariables();
     void InitTopicIndex();
@@ -52,18 +50,15 @@ private:
 public:
     
     LDA(int topic, double alpha, double beta, int iter):
-        topics_num(topic), alpha(alpha), beta(beta), iter_num(iter){}
+        topics_num(topic), alpha(alpha), beta(beta), iter_num(iter),
+        docs_num(0), words_num(0), b_ready(false){}
 
-    ~LDA();
 
     // Init model by specifying the input data documents.
     void Init(const char* inputfile);
 
     // Training model.
     void Training();
-
-    // Exit model.
-    void Exit();
 
     const THETA_MATRIX& GetTheta();
 

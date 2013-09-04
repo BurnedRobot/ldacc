@@ -39,6 +39,5 @@ int main(int argc, char* argv[])
             std::fprintf(stdout, "%s:%lf\n", phi[i][j].first.c_str() ,phi[i][j].second);
     }
 
-    lda.Exit();
     return 0;
 }

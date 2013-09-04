@@ -7,26 +7,10 @@
 
 void  LDA::Init(const char* inputfile)
 {
-    if(NULL != p_words_matrix)
-    {
-        delete p_words_matrix;
-        p_words_matrix = new WORDS_MATRIX;
-    }
-    else
-        p_words_matrix = new WORDS_MATRIX;
 
-    if(NULL != p_words_bag)
-    {
-        delete p_words_bag;
-        p_words_bag = new WORDS_BAG;
-    }
-    else
-        p_words_bag = new WORDS_BAG;
+    docs_num = ReadData("../data/document.dat", words_matrix, words_bag);
 
-
-    docs_num = ReadData("../data/document.dat", *p_words_matrix, *p_words_bag);
-
-    if(0 == docs_num && docs_num != p_words_matrix->size())
+    if(0 == docs_num && docs_num != words_matrix.size())
     {
         std::fprintf(stderr,"Numbers of Documents Error!\n");
         std::exit(0);
@@ -36,7 +20,7 @@ void  LDA::Init(const char* inputfile)
     InitTopicIndex();
 
     for(int index_doc = 0; index_doc < docs_num; index_doc++)
-        for(int index_word = 0; index_word < (*p_words_matrix)[index_doc].size(); index_word++)
+        for(int index_word = 0; index_word < words_matrix[index_doc].size(); index_word++)
             IncreCountVariables(index_doc, index_word);
 
     b_ready = true;
@@ -45,65 +29,29 @@ void  LDA::Init(const char* inputfile)
 
 void LDA::InitCountVariables()
 {
-    // Init document-topic count: n^(k)_m
-    if(NULL != p_NKm_count)
-    {
-        delete p_NKm_count;
-        p_NKm_count = new NKm_COUNT;
-    }
-    else
-        p_NKm_count = new NKm_COUNT;
     
-    p_NKm_count->resize(docs_num);
-    for_each(p_NKm_count->begin(), p_NKm_count->end(),
+    NKm_count.resize(docs_num);
+    for_each(NKm_count.begin(), NKm_count.end(),
              [&](std::vector<int>& vt){ vt.resize(topics_num); });
 
-    // Init document-topic sum: n_m
-    if(NULL != p_NKm_sum)
-    {
-        delete p_NKm_sum;
-        p_NKm_sum = new NKm_SUM;
-    }
-    else
-        p_NKm_sum = new NKm_SUM;
-    p_NKm_sum->resize(docs_num);
+    NKm_sum.resize(docs_num);
 
-    // Init topic-term count: n^(t)_k
-    if(NULL != p_NTk_count)
-    {
-        delete p_NTk_count;
-        p_NTk_count = new NTk_COUNT;
-    }
-    else
-        p_NTk_count = new NTk_COUNT;
-    p_NTk_count->resize(topics_num);
+    NTk_count.resize(topics_num);
 
-    // Init topic-term sum: n_k
-    if(NULL != p_NTk_sum)
-    {
-        delete p_NTk_sum;
-        p_NTk_sum = new NTk_SUM;
-    }
-    else
-        p_NTk_sum = new NTk_SUM;
-    p_NTk_sum->resize(topics_num);
+    NTk_sum.resize(topics_num);
     
 }
 
 
 void LDA::InitTopicIndex()
 {
-    if(NULL != pZmn)
-        delete pZmn;
-    else
-        pZmn = new Zmn_MATRIX;
 
-    pZmn->resize(docs_num);
+    Zmn.resize(docs_num);
 
     int count = 0;
-    for_each(pZmn->begin(), pZmn->end(),
+    for_each(Zmn.begin(), Zmn.end(),
             [&](std::vector<int>& vt){
-                vt.resize((*p_words_matrix)[count++].size());
+                vt.resize(words_matrix[count++].size());
             });
 
     srand((unsigned)time(0));
@@ -111,7 +59,7 @@ void LDA::InitTopicIndex()
     std::vector<double> pro_vt(topics_num);
     std::fill(pro_vt.begin(), pro_vt.end(), (double)(1.0)/topics_num);
 
-    for_each(pZmn->begin(), pZmn->end(),
+    for_each(Zmn.begin(), Zmn.end(),
              [&](std::vector<int>& vt) {
                  generate(vt.begin(), vt.end(), [&]{ return GenerateMultiSample(topics_num, pro_vt); });
              });
@@ -122,25 +70,25 @@ void LDA::InitTopicIndex()
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void LDA::IncreCountVariables(std::size_t index_doc, std::size_t index_word)
 {
-    int i = (*pZmn)[index_doc][index_word];
-    (*p_NKm_count)[index_doc][i]++ ;
-    (*p_NKm_sum)[index_doc]++;
+    int i = Zmn[index_doc][index_word];
+    (NKm_count)[index_doc][i]++ ;
+    (NKm_sum)[index_doc]++;
 
-    std::string term = (*p_words_matrix)[index_doc][index_word];
-    (*p_NTk_count)[i][term]++;
-    (*p_NTk_sum)[i]++;
+    std::string term = words_matrix[index_doc][index_word];
+    (NTk_count)[i][term]++;
+    (NTk_sum)[i]++;
 }
 
 
 void LDA::DecreCountVariables(std::size_t index_doc, std::size_t index_word)
 {
-    int i = (*pZmn)[index_doc][index_word];
-    (*p_NKm_count)[index_doc][i]-- ;
-    (*p_NKm_sum)[index_doc]--;
+    int i = Zmn[index_doc][index_word];
+    (NKm_count)[index_doc][i]-- ;
+    (NKm_sum)[index_doc]--;
 
-    std::string term = (*p_words_matrix)[index_doc][index_word];
-    (*p_NTk_count)[i][term]--;
-    (*p_NTk_sum)[i]--;
+    std::string term = words_matrix[index_doc][index_word];
+    (NTk_count)[i][term]--;
+    (NTk_sum)[i]--;
 }
 
 
@@ -162,14 +110,14 @@ void LDA::GibbsSampling()
     while(count < iter_num)
     {
         count++;
-        for(std::size_t index_doc = 0; index_doc < (*p_words_matrix).size(); ++index_doc)
+        for(std::size_t index_doc = 0; index_doc < words_matrix.size(); ++index_doc)
         {
-            for(std::size_t index_word = 0; index_word < (*p_words_matrix)[index_doc].size(); ++index_word)
+            for(std::size_t index_word = 0; index_word < words_matrix[index_doc].size(); ++index_word)
             {
-                //std::cout << "word: " << (*p_words_matrix)[index_doc][index_word] << std::endl;
+                //std::cout << "word: " << words_matrix[index_doc][index_word] << std::endl;
                 DecreCountVariables(index_doc, index_word);
 
-                (*pZmn)[index_doc][index_word] = UpdateTopic(index_doc, index_word);
+                Zmn[index_doc][index_word] = UpdateTopic(index_doc, index_word);
 
                 IncreCountVariables(index_doc, index_word);
                 //break;
@@ -184,18 +132,18 @@ void LDA::GibbsSampling()
 
 int LDA::UpdateTopic(std::size_t index_doc, std::size_t index_word)
 {
-    int k = (*pZmn)[index_doc][index_word];
+    int k = Zmn[index_doc][index_word];
 
-    std::string term = (*p_words_matrix)[index_doc][index_word];
+    std::string term = words_matrix[index_doc][index_word];
     //std::cout << "Change Topic is " << k << std::endl;
     std::vector<double> temp_vt;
     for(k = 0; k < topics_num; k++) 
     {
         double denominator = 0.0;
-        denominator = ((*p_NTk_sum)[k] + words_num * beta) * ((*p_NKm_sum)[index_doc] + topics_num * alpha);
+        denominator = ((NTk_sum)[k] + words_num * beta) * ((NKm_sum)[index_doc] + topics_num * alpha);
 
         double numerator = 0.0;
-        numerator = ((*p_NTk_count)[k][term] + beta)*((*p_NKm_count)[index_doc][k] + alpha);
+        numerator = ((NTk_count)[k][term] + beta)*((NKm_count)[index_doc][k] + alpha);
 
         double probability = numerator / denominator;
         temp_vt.push_back(probability);
@@ -217,19 +165,14 @@ int LDA::UpdateTopic(std::size_t index_doc, std::size_t index_word)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void LDA::EstimateTheta()
 {
-    if(NULL != p_theta_matrix)
-    {
-        delete p_theta_matrix;
-        p_theta_matrix = new THETA_MATRIX(docs_num);
-    }else
-        p_theta_matrix = new THETA_MATRIX(docs_num);
+    theta_matrix.resize(docs_num);
 
     for(int i = 0; i < docs_num; i++)
     {
-        (*p_theta_matrix)[i].resize(topics_num);
+        (theta_matrix)[i].resize(topics_num);
         for(int j = 0; j < topics_num; j++)
         {
-            (*p_theta_matrix)[i][j] = ((*p_NKm_count)[i][j] + alpha) / ((*p_NKm_sum)[i] + alpha * topics_num);
+            (theta_matrix)[i][j] = ((NKm_count)[i][j] + alpha) / ((NKm_sum)[i] + alpha * topics_num);
         }
     }
 
@@ -237,23 +180,18 @@ void LDA::EstimateTheta()
 
 void LDA::EstimatePhi()
 {
-    if(NULL != p_phi_matrix)
-    {
-        delete p_phi_matrix;
-        p_phi_matrix = new PHI_MATRIX(topics_num);
-    }else
-        p_phi_matrix = new PHI_MATRIX(topics_num);
-
+    phi_matrix.resize(topics_num);
+    
     std::map<std::string, int>::const_iterator iter;
     for(int i = 0; i < topics_num; i++)
     {
-        for(iter = (*p_NTk_count)[i].begin(); iter != (*p_NTk_count)[i].end(); ++iter)
+        for(iter = (NTk_count)[i].begin(); iter != (NTk_count)[i].end(); ++iter)
         {
-            double phi_value = (static_cast<double>(iter->second) + beta) / ((*p_NTk_sum)[i] + beta * words_num);
+            double phi_value = (static_cast<double>(iter->second) + beta) / ((NTk_sum)[i] + beta * words_num);
             
-            (*p_phi_matrix)[i].push_back(make_pair(iter->first, phi_value));
+            (phi_matrix)[i].push_back(make_pair(iter->first, phi_value));
         }
-        std::sort((*p_phi_matrix)[i].begin(), (*p_phi_matrix)[i].end(), 
+        std::sort((phi_matrix)[i].begin(), (phi_matrix)[i].end(), 
                   [&](const std::pair<std::string, double>& x, const std::pair<std::string, double>& y) -> bool
                   {
                       return !(x.second <= y.second);
@@ -266,80 +204,13 @@ void LDA::EstimatePhi()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 const THETA_MATRIX& LDA::GetTheta()
 {
-    return *p_theta_matrix;
+    return theta_matrix;
 }
 
 
 const PHI_MATRIX& LDA::GetPhi()
 {
-    return *p_phi_matrix;
+    return phi_matrix;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-LDA::~LDA()
-{
-    if(!b_exit)
-        Exit();
-}
-
-
-void LDA::Exit()
-{
-    if(NULL != pZmn)
-    {
-        delete pZmn;
-        pZmn = NULL;
-    }
-
-    if(NULL != p_NKm_count)
-    {
-        delete p_NKm_count;
-        p_NKm_count = NULL;
-    }
-
-    if(NULL != p_NKm_sum)
-    {
-        delete p_NKm_sum;
-        p_NKm_sum = NULL;
-    }
-
-    if(NULL != p_NTk_count)
-    {
-        delete p_NTk_count;
-        p_NTk_count = NULL;
-    } 
-
-    if(NULL != p_NTk_sum)
-    {
-        delete p_NTk_sum;
-        p_NTk_sum = NULL;
-    }
-
-    // 
-    if(NULL != p_words_matrix)
-    {
-        delete p_words_matrix;
-        p_words_matrix = NULL;
-    }
-
-    if(NULL != p_words_bag)
-    {
-        delete p_words_bag;
-        p_words_bag = NULL;
-    }
-
-    if(NULL != p_theta_matrix)
-    {
-        delete p_theta_matrix;
-        p_theta_matrix = NULL;
-    }
-
-    if(NULL != p_phi_matrix)
-    {
-        delete p_phi_matrix;
-        p_phi_matrix = NULL;
-    } 
-
-    b_exit = true;
-}
 
