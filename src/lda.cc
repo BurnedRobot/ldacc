@@ -4,6 +4,7 @@
 #include "../include/utils.h"
 #include <cstdlib>
 #include <algorithm>
+#include <ctime>
 
 void  LDA::Init(const char* inputfile)
 {
