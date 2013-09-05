@@ -47,8 +47,11 @@ int GenerateMultiSample(int num_of_topics, std::vector<double>& pro_vt)
 
     auto iter_start = distri_vt.begin();
     auto iter_stop = lower_bound(distri_vt.begin(), distri_vt.end(), temp);
+    int k = iter_stop - iter_start;
+    if(num_of_topics == k)
+        --k;
 
     //std::cout << iter_stop - iter_start << std::endl;
-    return (iter_stop - iter_start);
+    return k;
 
 }

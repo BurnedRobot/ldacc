@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <algorithm>
 #include <ctime>
+#include <numeric>
 
 void  LDA::Init(const char* inputfile)
 {

@@ -7,6 +7,7 @@
 #include <set>
 #include <algorithm>
 #include <map>
+#include <ctime>
 
 const int kTopics = 10;
 const double alpha = 50/kTopics;
@@ -15,6 +16,10 @@ const int kIterNum = 1000;
 
 int main(int argc, char* argv[])
 {
+    clock_t start, finish;
+    double duration;
+    start = clock();
+
     LDA lda(kTopics, alpha, beta, kIterNum);
     lda.Init("../data/document.dat");
     lda.Training();
@@ -38,6 +43,10 @@ int main(int argc, char* argv[])
         for(int j = 0; j < 50; j++)
             std::fprintf(stdout, "%s:%lf\n", phi[i][j].first.c_str() ,phi[i][j].second);
     }
+
+    finish = clock();
+    duration = (double)(finish - start)/CLOCKS_PER_SEC;
+    std::printf("Total time: %f seconds\n", duration);
 
     return 0;
 }
